@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AKEEL</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial;
+  background: radial-gradient(circle at left, #ff8c00, #000);
+  color: #fff;
+}
+
+/* 🎞️ الحاوية */
+.reels-container {
+  position: relative;
+  padding: 20px;
+}
+
+/* 🎞️ السلايدر */
+.reels {
+  display: flex;
+  gap: 15px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+}
+
+.reels::-webkit-scrollbar { display: none; }
+
+/* 🎬 الفيديو */
+.video-box {
+  flex: 0 0 auto;
+  width: 130px;
+  height: 220px;
+  border-radius: 15px;
+  overflow: hidden;
+  border: 2px solid orange;
+  box-shadow: 0 0 15px orange;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.video-box:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 25px orange;
+}
+
+.video-box video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ⬅️➡️ */
+.nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0,0,0,0.6);
+  border: 1px solid orange;
+  color: orange;
+  font-size: 20px;
+  padding: 10px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.left { left: 10px; }
+.right { right: 10px; }
+
+/* 👤 البروفايل */
+.profile {
+  text-align: center;
+  margin-top: 40px;
+}
+
+.profile img {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  border: 4px solid orange;
+  box-shadow: 0 0 30px orange;
+}
+
+.name {
+  font-size: 35px;
+  color: orange;
+  margin-top: 15px;
+}
+
+/* 🔘 */
+.buttons a {
+  display: inline-block;
+  margin: 10px;
+  padding: 10px 20px;
+  border: 1px solid orange;
+  border-radius: 20px;
+  color: white;
+  text-decoration: none;
+}
+
+/* 🔥 مودال */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.9);
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal video {
+  width: 300px;
+  height: 500px;
+  border-radius: 20px;
+  box-shadow: 0 0 30px orange;
+}
+
+/* 🎨 زر اللون */
+.color-switcher {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background: #111;
+  border: 2px solid orange;
+  color: orange;
+  padding: 12px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="reels-container">
+<button class="nav-btn left" onclick="scrollReels(-200)">❮</button>
+
+<div class="reels" id="reels">
+  <div class="video-box"><video src="video1.mp4" muted loop></video></div>
+  <div class="video-box"><video src="video2.mp4" muted loop></video></div>
+  <div class="video-box"><video src="video3.mp4" muted loop></video></div>
+</div>
+
+<button class="nav-btn right" onclick="scrollReels(200)">❯</button>
+</div>
+
+<div class="profile">
+  <img src="https://i.imgur.com/1X6a7Fq.jpg">
+  <div class="name">AKEEL</div>
+
+  <div class="buttons">
+    <a href="#">Facebook</a>
+    <a href="#">GitHub</a>
+  </div>
+</div>
+
+<!-- 🔥 مودال -->
+<div class="modal" id="modal" onclick="closeModal()">
+  <video id="modalVideo" controls autoplay></video>
+</div>
+
+<!-- 🎨 زر -->
+<div class="color-switcher" onclick="changeColor()">🎨</div>
+
+<script>
+const reels = document.getElementById("reels");
+const videos = document.querySelectorAll("video");
+const modal = document.getElementById("modal");
+const modalVideo = document.getElementById("modalVideo");
+
+/* تشغيل فيديو واحد */
+videos.forEach(video => {
+  video.addEventListener("mouseenter", () => {
+    videos.forEach(v => v.pause());
+    video.play();
+  });
+});
+
+/* تكبير */
+document.querySelectorAll(".video-box").forEach(box => {
+  box.onclick = () => {
+    modal.style.display = "flex";
+    modalVideo.src = box.querySelector("video").src;
+  };
+});
+
+function closeModal() {
+  modal.style.display = "none";
+  modalVideo.pause();
+}
+
+/* سحب */
+let isDown = false, startX, scrollLeft;
+
+reels.addEventListener("mousedown", e => {
+  isDown = true;
+  startX = e.pageX - reels.offsetLeft;
+  scrollLeft = reels.scrollLeft;
+});
+
+reels.addEventListener("mouseup", () => isDown = false);
+reels.addEventListener("mouseleave", () => isDown = false);
+
+reels.addEventListener("mousemove", e => {
+  if (!isDown) return;
+  const x = e.pageX - reels.offsetLeft;
+  const walk = (x - startX) * 2;
+  reels.scrollLeft = scrollLeft - walk;
+});
+
+/* أزرار */
+function scrollReels(val) {
+  reels.scrollLeft += val;
+}
+
+/* 🎨 تغيير اللون */
+let colors = ["#ff8c00", "#00bfff", "#00ff88", "#a020f0"];
+let i = 0;
+
+function changeColor() {
+  i = (i + 1) % colors.length;
+  let c = colors[i];
+
+  document.body.style.background = `radial-gradient(circle at left, ${c}, #000)`;
+
+  document.querySelectorAll(".video-box").forEach(e=>{
+    e.style.borderColor = c;
+    e.style.boxShadow = `0 0 15px ${c}`;
+  });
+
+  document.querySelectorAll(".nav-btn").forEach(e=>{
+    e.style.color = c;
+    e.style.borderColor = c;
+  });
+}
+</script>
+
+</body>
+</html>
